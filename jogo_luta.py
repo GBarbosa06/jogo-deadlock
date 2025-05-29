@@ -19,33 +19,37 @@ controles = {
     }
 }
 
-def acao_jogador(nome, teclas, primeiro_recurso, segundo_recurso):
+# Agora há uma ordem fixa, sempre pega anim primeiro e depois som
+def acao_jogador(nome, teclas):
     print(f"{nome} entrou no jogo!")
     while True:
         for tecla, acao in teclas.items():
             if keyboard.is_pressed(tecla):
                 print(f"[{nome}] tentando executar: {acao}!")
-                primeiro_recurso.acquire()
+                anim.acquire()
                 print(f"[{nome}] executou: {acao}!")
-                time.sleep(0.5) # Simula o tempo de execução da ação
+                time.sleep(0.3) # Simula o tempo de execução da ação
 
-                print(f"[{nome}] tentando pegar {segundo_recurso} para {acao}")
-                segundo_recurso.acquire()
-                print(f"[{nome}] pegou {segundo_recurso}")
+                print(f"[{nome}] tentando pegar som para {acao}")
+                som.acquire()
+                print(f"[{nome}] pegou som")
 
                 print(f"[{nome}] executando {acao}!")
                 time.sleep(1)  # Simula duração da ação
 
                 # Solta recursos na ordem inversa
-                segundo_recurso.release()
-                primeiro_recurso.release()
+                som.release()
+                anim.release()
                 time.sleep(0.3)  # Evita flood
 
-#threads para cada jogador
-j1 = threading.Thread(target=acao_jogador, args=('Jogador 1', controles['jogador1'], anim, som))
-j2 = threading.Thread(target=acao_jogador, args=('Jogador 2', controles['jogador2'], som, anim))
+# Agora ambos os jogadores seguem a mesma ordem: anim → som
+# Se o anim estiver ocupado, ninguém pega o som antes
 
-# Iniciaas threads
+# Threads para cada jogador
+j1 = threading.Thread(target=acao_jogador, args=('Jogador 1', controles['jogador1']))
+j2 = threading.Thread(target=acao_jogador, args=('Jogador 2', controles['jogador2']))
+
+# Inicia as threads
 j1.start()
 j2.start()
 
