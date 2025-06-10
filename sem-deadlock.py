@@ -163,6 +163,10 @@ class JogoLutaGUI:
         thread_luta.start()
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    jogo = JogoLutaGUI(root)
-    root.mainloop()
+    resposta = input("Quer começar a luta? (s/n): ").strip().lower()
+    if resposta != 's':
+        print("Jogo não iniciado. Até a próxima!")
+    else:
+        root = tk.Tk()
+        jogo = JogoLutaGUI(root)
+        root.mainloop()
