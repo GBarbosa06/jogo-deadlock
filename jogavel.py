@@ -195,6 +195,7 @@ class JogoLutaGUI:
             texto_id = self.canvas.create_text(300, 50, text=txt, font=("Helvetica", 32, "bold"), fill="red")
             self.canvas.update()
             time.sleep(1)
+        print("=== LUTA INICIADA ===\n")
 
         self.canvas.delete(texto_id)
 
@@ -233,10 +234,15 @@ class JogoLutaGUI:
             dano = atacante.atacar(defensor)
             self.atualizar_vidas()
             self.trocar_imagem(defensor, 'defesa')
+            print(f"{atacante.nome} causou {dano} de dano em {defensor.nome}!")
+            print(f"{defensor.nome} agora tem {max(0, defensor.vida)} HP\n")
 
             if defensor.vida <= 0:
                 atacante.vitorias += 1
                 self.atualizar_placar()
+                print(f"{atacante.nome} venceu este round!")
+                print(f"Placar: {self.lutador1.nome} {self.lutador1.vitorias} x {self.lutador2.vitorias} {self.lutador2.nome}\n")
+
                 if atacante.vitorias == 2:
                     self.fim_de_jogo(atacante)
                 else:
@@ -254,6 +260,7 @@ class JogoLutaGUI:
                     self.lutador2.resetar()
                     self.atualizar_vidas()
                     self.iniciar_luta()
+
 
         threading.Thread(target=animar).start()
 
