@@ -1,0 +1,58 @@
+1. O que é threading?
+threading é uma biblioteca padrão do Python que permite criar e controlar threads — pedaços de código que rodam paralelamente dentro do mesmo programa.
+Threads são úteis pra fazer tarefas que podem acontecer ao mesmo tempo, tipo animações, I/O, ou no caso, duas ações de luta rodando em paralelo.
+
+2. Conceito básico: Thread
+Quando você cria uma thread, você define uma função (o que a thread vai fazer).
+Depois você “liga” a thread com .start().
+A thread roda aquela função de forma concorrente com o resto do programa (outras threads).
+Você pode esperar a thread acabar com .join(), bloqueando até ela terminar.
+
+3. Por que usar semáforo?
+Imagine duas threads querendo mexer numa coisa só — por exemplo, a vida do lutador adversário.
+Se as duas mexerem ao mesmo tempo, podem rolar problemas, tipo:
+    Race condition: duas threads lendo e escrevendo a mesma variável e o valor final ser errado.
+    Dados corrompidos: um cálculo não termina direito.
+
+4. Semáforo: o que é e como funciona
+Um semáforo é uma “contagem” de quantas threads podem acessar um recurso ao mesmo tempo.
+
+No código, usamos Semaphore(1), que funciona como um mutex (ou lock binário): só uma thread pode entrar na seção crítica por vez.
+
+Quando uma thread quer “entrar”, ela chama .acquire(). Se já tiver alguém lá dentro, ela fica esperando.
+
+Quando termina, chama .release(), liberando a vaga pra próxima thread entrar.
+
+
+
+* self.semaforo = threading.Semaphore(1)
+    Aqui, só uma thread por vez pode fazer o ataque.
+
+
+
+* semaforo.acquire()
+    faz o ataque e mexe na vida do oponente
+
+* semaforo.release()
+    Se a thread que quer atacar não conseguir pegar o semáforo (porque a outra está atacando), ela espera.
+
+5. Locks (exclusão mútua simples)
+Além do semáforo que controla o turno do ataque, cada lutador tem um lock para proteger o atributo vida.
+Esse lock evita que duas threads mexam no vida ao mesmo tempo.
+self.lock = threading.Lock()
+with self.lock:
+    self.vida -= dano
+    É um jeito elegante de garantir que só uma thread modifique a vida do lutador naquele instante.
+
+6. Resumo rápido do que acontece no código
+Duas threads, cada uma representa um lutador que tenta atacar o outro.
+Cada thread quer pegar o semaforo (vez de atacar).
+Só uma thread por vez consegue, a outra espera.
+Quem pegou o semáforo faz a animação e diminui a vida do adversário — protegida pelo lock.
+Depois libera o semáforo, pra vez do outro.
+Quando a vida de um chega a zero, fim da luta.
+
+7. Vantagens do semáforo + lock
+Controla o acesso a recursos compartilhados.
+Evita que duas threads façam a mesma coisa ao mesmo tempo e causem bugs.
+Mantém o programa rodando sem deadlock (porque o fluxo de aquisição e liberação é sempre o mesmo, simples).
