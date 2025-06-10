@@ -1,40 +1,52 @@
+import threading
+import time
 
-    def atualizar_vida(self):
-        self.canvas.itemconfig(self.text, text=f"{self.nome}: {self.vida} HP")
+# Classe que representa um lutador
+class Lutador:
+    def __init__(self, nome):
+        # Inicializa o nome, vida e um lock para controle de acesso
+        self.nome = nome
+        self.vida = 100
+        self.lock = threading.Lock()
 
     def atacar(self, oponente):
+        # Método para atacar outro lutador
         print(f"{self.nome} tentando atacar {oponente.nome}...")
+
+        # Bloqueia o próprio lock antes de tentar atacar
         with self.lock:
-            print(f"{self.nome} bloqueou seu próprio lock e tenta bloquear {oponente.nome}")
-            time.sleep(1)  # Simula tempo de ataque
-            with oponente.lock:
-                print(f"{self.nome} atacou {oponente.nome}!")
-                oponente.vida -= 10
-                oponente.atualizar_vida()
+            print(f"{self.nome} bloqueou SEU PRÓPRIO lock.")
+            time.sleep(1)  # Simula um atraso para aumentar a chance de deadlock
 
-def luta(lutador1, lutador2):
-    for _ in range(5):
-        lutador1.atacar(lutador2)
-        time.sleep(0.1)
+            # Tenta bloquear o lock do oponente
+            print(f"{self.nome} tentando bloquear o lock de {oponente.nome}...")
+            with oponente.lock:  # Deadlock ocorre se o oponente já tiver bloqueado este lock
+                print(f"{self.nome} ATACOU {oponente.nome}!")
+                oponente.vida -= 10  # Reduz a vida do oponente
+                print(f"{oponente.nome} agora tem {oponente.vida} de vida.")
 
-def iniciar_luta():
-    btn_iniciar.config(state='disabled')
-    t1 = threading.Thread(target=luta, args=(lutador1, lutador2))
-    t2 = threading.Thread(target=luta, args=(lutador2, lutador1))
+# Função para iniciar a luta entre dois lutadores
+def iniciar_luta(lutador1, lutador2):
+    # Cria duas threads, uma para cada lutador atacar o outro
+    t1 = threading.Thread(target=lutador1.atacar, args=(lutador2,))
+    t2 = threading.Thread(target=lutador2.atacar, args=(lutador1,))
+
+    # Inicia as threads
     t1.start()
     t2.start()
 
-# Interface gráfica
-root = tk.Tk()
-root.title("Deadlock na Luta")
+    # Aguarda as threads terminarem com um timeout
+    t1.join(timeout=5)
+    t2.join(timeout=5)
 
-canvas = Canvas(root, width=400, height=200, bg="white")
-canvas.pack()
+    # Mensagem final indicando que deadlock pode ter ocorrido
+    print("Verificação final: Deadlock detectado se o programa travar ou não finalizar.")
 
-lutador1 = Lutador("Lutador 1", 100, 50, canvas)
-lutador2 = Lutador("Lutador 2", 300, 50, canvas)
+# Ponto de entrada do programa
+if __name__ == "__main__":
+    # Cria dois lutadores
+    lutador1 = Lutador("Lutador 1")
+    lutador2 = Lutador("Lutador 2")
 
-btn_iniciar = tk.Button(root, text="Iniciar Luta", command=iniciar_luta)
-btn_iniciar.pack(pady=10)
-
-root.mainloop()
+    # Inicia a luta entre os lutadores
+    iniciar_luta(lutador1, lutador2)
