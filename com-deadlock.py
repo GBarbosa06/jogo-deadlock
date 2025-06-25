@@ -16,7 +16,7 @@ class Lutador:
         # Bloqueia o próprio lock antes de tentar atacar
         with self.lock:
             print(f"{self.nome} bloqueou SEU PRÓPRIO lock.")
-            time.sleep(1)  # Simula um atraso para aumentar a chance de deadlock
+            time.sleep(1)  # Simula um atraso no golpe
 
             # Tenta bloquear o lock do oponente
             print(f"{self.nome} tentando bloquear o lock de {oponente.nome}...")
