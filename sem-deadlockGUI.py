@@ -140,7 +140,7 @@ class JogoLutaGUI:
                 self.fim_luta.set()  # Sinaliza fim da luta para as threads
                 break
 
-            time.sleep(0.5)
+            time.sleep(random.uniform(0.5, 1.5))
 
     def iniciar_luta(self):
         self.btn_iniciar.config(state='disabled')
